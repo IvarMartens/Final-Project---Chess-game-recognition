@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
-import ipAdresses
+import ipAddresses
 
-video_feed_url = ipAdresses.home
+video_feed_url = ipAddresses.home
 cap = cv2.VideoCapture(video_feed_url)
 
 def is_consistent(gaps, tolerance=0.2):
