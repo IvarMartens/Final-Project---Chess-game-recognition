@@ -5,50 +5,33 @@ import ipAddresses
 video_feed_url = ipAddresses.home
 cap = cv2.VideoCapture(video_feed_url)
 
-def is_consistent(gaps, tolerance=0.2):
-    avg_gap = np.mean(gaps)
-    return all(abs(gap - avg_gap) / avg_gap < tolerance for gap in gaps)
-
-def find_consistent_sequences(lines, is_horizontal=True, tolerance=0.2, length_tolerance=0.2):
-    if not lines:
-        return []
-    
-    lengths = [np.sqrt((line[2] - line[0])**2 + (line[3] - line[1])**2) for line in lines]
-    median_length = np.median(lengths)
-    length_filtered_lines = [line for line, length in zip(lines, lengths) if abs(length - median_length) / median_length < length_tolerance]
-    
-    sorted_lines = sorted(length_filtered_lines, key=lambda line: (line[0] + line[2]) // 2 if is_horizontal else (line[1] + line[3]) // 2)
-    gaps = [sorted_lines[i + 1][1] - sorted_lines[i][3] if is_horizontal else sorted_lines[i + 1][0] - sorted_lines[i][2] for i in range(len(sorted_lines) - 1)]
-    
-    for i in range(len(gaps) - 7):
-        if is_consistent(gaps[i:i + 8], tolerance):
-            return sorted_lines[i:i + 9]
-    return []
-
-def process_frame(frame):
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(gray, 50, 150, apertureSize=3)
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 50, minLineLength=100, maxLineGap=10)
-
-    if lines is not None:
-        horizontal_lines = [line[0] for line in lines if abs(line[0][1] - line[0][3]) < 20]
-        vertical_lines = [line[0] for line in lines if abs(line[0][0] - line[0][2]) < 20]
-
-        consistent_horizontals = find_consistent_sequences(horizontal_lines, is_horizontal=True, length_tolerance=0.2)
-        consistent_verticals = find_consistent_sequences(vertical_lines, is_horizontal=False, length_tolerance=0.2)
-
-        for x1, y1, x2, y2 in consistent_horizontals + consistent_verticals:
-            cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
-    cv2.imshow('Detected Lines', frame)
+chessboard_size = (7, 7)  # 7x7 internal corners
 
 while True:
     ret, frame = cap.read()
     if not ret:
+        print("Failed to grab frame")
         break
 
-    process_frame(frame)
+    # Convert to grayscale
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
+    # Attempt to find the chessboard corners
+    ret, corners = cv2.findChessboardCorners(gray, chessboard_size, None)
+
+    # Only display the frame if the chessboard was found
+    if ret == True:
+        # Enhances the corner detection
+        corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria=(cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001))
+        # Draw and display the corners
+        cv2.drawChessboardCorners(frame, chessboard_size, corners2, ret)
+        cv2.imshow('Chessboard Detection', frame)
+    else:
+        # Optional: Display a message or a blank screen if the chessboard is not detected
+        # cv2.imshow('Chessboard Detection', np.zeros_like(frame))
+        pass
+
+    # Break the loop with the 'q' key
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
