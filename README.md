@@ -8,3 +8,13 @@
 
 ## Requirements 
 All the requirements for this project are listed in the requirements.txt file. These packages can be intalled using `pip install requirements.txt`.
+
+## Camera feed
+In order to use the camera feed from your phone you have to follow the following steps:
+1. Download an app such as "IP Webcam" for Android or "iVCam" for iOS and Windows
+2. Start a stream in the "IP Webcam app"
+3. Run `python camera_feed.py`
+
+## Interesting links
+- https://blog.roboflow.com/chess-boards/
+- https://github.com/georg-wolflein/chesscog
