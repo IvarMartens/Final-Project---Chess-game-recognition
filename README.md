@@ -13,11 +13,11 @@ All the requirements for this project are listed in the requirements.txt file. T
 In order to use the camera feed from your phone you have to follow the following steps:
 1. Download an app such as "IP Webcam" for Android or "iVCam" for iOS and Windows
 2. Start a stream in the "IP Webcam app"
-3. Run a python script that takes in video using: 
+3. Change the location in the helper.get_ip() fuction (make sure the location is added in the helper.py file)
 ```python
-import ipAdresses
+import helper
 
-video_feed_url = ipAddresses.home
+video_feed_url = helper.get_ip('home')
 cap = cv2.VideoCapture(video_feed_url)
 ```
 
