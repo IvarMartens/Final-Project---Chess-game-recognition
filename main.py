@@ -17,6 +17,8 @@ cap = cv2.VideoCapture(video_path)
 frame_counter = 0
 frames_to_skip = 5
 
+global orientation
+
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -45,7 +47,9 @@ while cap.isOpened():
             topdown_img = transform.four_point_transform(resized_frame, np_points)
             height, width = topdown_img.shape[:2]
 
-            transformed_img = helper.adjust_chessboard_orientation(topdown_img, height, width)
+            transformed_img, new_orientation = helper.adjust_chessboard_orientation(topdown_img, height, width, orientation)
+            orientation = new_orientation
+
 
             section_height = transformed_img.shape[0] // 8
             section_width = transformed_img.shape[1] // 8

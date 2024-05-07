@@ -1,9 +1,9 @@
-\.venv
-\runs
+.venv/
+runs/
 yolov8n.pt
-\Corner_Dataset
+Corner_Dataset/
 VID20240507101110.mp4
-\dump
-\corner data
-\Papers
-\_pycache_
+dump/
+corner data/
+Papers/
+_pycache_/

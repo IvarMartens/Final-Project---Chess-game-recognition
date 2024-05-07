@@ -37,7 +37,7 @@ def get_color_at_point(image, x, y):
     # Get the BGR color of the image at a specific point
     return image[y, x]
 
-def adjust_chessboard_orientation(transformed_img, height, width):
+def adjust_chessboard_orientation(transformed_img, height, width, current_orientation):
     
     # Check the color at bottom-left and bottom-right corners
     bottom_left_color = get_color_at_point(transformed_img, 5, 5)
@@ -46,9 +46,14 @@ def adjust_chessboard_orientation(transformed_img, height, width):
     # Determine if the bottom-left is darker than the bottom-right
     if np.mean(bottom_left_color) < np.mean(bottom_right_color):
         # If bottom-left is lighter, rotate 90 degrees
-        transformed_img = rotate_image(transformed_img, 90)
+        if current_orientation == 90:
+            rotation = 270
+        else: 
+            rotation = 90
+        
+        transformed_img = rotate_image(transformed_img, rotation)
 
-    return transformed_img
+    return transformed_img, rotation
 
 def is_in_box(piece_center: tuple, grid_points: list):
     """
