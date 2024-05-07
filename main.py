@@ -42,7 +42,34 @@ while cap.isOpened():
         
         if helper.is_square(points):
             np_points = np.array(points, dtype=np.float32)
-            transformed_img = transform.four_point_transform(resized_frame, np_points)
+            topdown_img = transform.four_point_transform(resized_frame, np_points)
+            height, width = topdown_img.shape[:2]
+
+            transformed_img = helper.adjust_chessboard_orientation(topdown_img, height, width)
+
+            section_height = transformed_img.shape[0] // 8
+            section_width = transformed_img.shape[1] // 8
+
+            grid_points = [[],[]]
+            
+            # Loop through rows and columns to find coordinates of the intersection points
+            for row in range(1,8):
+                for col in range(1,8):
+                    x = col * section_width
+                    y = row * section_height
+
+                    if y not in grid_points[1]:
+                        grid_points[1].append(y)
+                    
+                    # Draw circles on each intersection point
+                    circle_radius = 5
+                    circle_color = (0, 0, 255)  # Red color
+                    thickness = -1  # Filled circle
+
+                    cv2.circle(transformed_img, (x, y), circle_radius, circle_color, thickness)
+                
+                grid_points[0].append(x)
+
             cv2.imshow('Transformed Image', transformed_img)
 
     frame_counter += 1
