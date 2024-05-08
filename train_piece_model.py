@@ -12,7 +12,7 @@ def main():
         imgsz=640,
         epochs=100,
         batch=8,
-        name='yolov8n_corners')
+        name='yolov8n_pieces')
     
 if __name__ == '__main__':
     main()

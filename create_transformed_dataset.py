@@ -10,7 +10,7 @@ import transform
 import helper
 
 # Load the trained model
-model = YOLO('runs/detect/yolov8n_corners/weights/best.pt')
+model = YOLO('runs/detect/yolov8n_corners4/weights/best.pt')
 folder = "unlabeled piece data/new"
 images = "C:/Users/ivar/Documents/Documents/University/Leiden University/Master/Robotics/piece Images/new/"
 
@@ -22,6 +22,7 @@ for image in listdir(images):
 
     predictions = model.predict(resized_frame, show=True, device='cuda:0')
     boxes = predictions[0].boxes.xyxy.tolist()
+
 
     for box in boxes:
         center = ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2)

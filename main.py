@@ -9,8 +9,8 @@ import transform
 import helper
 
 # Load the trained model
-model_corners = YOLO('runs/detect/yolov8n_corners/weights/best.pt')
-model_pieces = YOLO('runs/detect/yolov8n_pieces7/weights/best.pt')
+model_corners = YOLO('runs/detect/yolov8n_corners4/weights/best.pt')
+# model_pieces = YOLO('runs/detect/yolov8n_pieces7/weights/best.pt')
 
 # Open the pre-shot video file
 video_path = 'test_videos/VID1.mp4'  # Update with live feed
@@ -36,8 +36,10 @@ while cap.isOpened():
         # Make predictions on the current frame
         points = []
 
-        predictions = model_corners.predict(resized_frame, device='cuda:0')
+        predictions = model_corners.predict(resized_frame, show=True, device='cuda:0')
         boxes = predictions[0].boxes.xyxy.tolist()
+        classes = predictions[0].boxes.cls.tolist()
+        names = predictions[0].names
 
         for box in boxes:
             center = ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2)
@@ -50,8 +52,8 @@ while cap.isOpened():
             height, width = topdown_img.shape[:2]
    
             transformed_img = helper.adjust_chessboard_orientation(topdown_img, height, width)
-            pieces_predictions = model_pieces.predict(transformed_img, show=True, device='cuda:0')
-            pieces_boxes = pieces_predictions[0].boxes.xyxy.tolist()
+            # pieces_predictions = model_pieces.predict(transformed_img, show=True, device='cuda:0')
+            # pieces_boxes = pieces_predictions[0].boxes.xyxy.tolist()
 
             section_height = transformed_img.shape[0] // 8
             section_width = transformed_img.shape[1] // 8
@@ -77,10 +79,8 @@ while cap.isOpened():
                 grid_points[0].append(x)
 
             cv2.imshow('Transformed Image', transformed_img)
-            cv2.waitKey(0)
 
     frame_counter += 1
-    print(f"Frame: {frame_counter}")
     
     # Break the loop with the 'q' key
     if cv2.waitKey(1) & 0xFF == ord('q'):
