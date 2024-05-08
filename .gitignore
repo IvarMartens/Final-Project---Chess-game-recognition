@@ -7,3 +7,6 @@ dump/
 corner data/
 Papers/
 _pycache_/
+unlabeled piece data/
+piece data/
+test_videos/
