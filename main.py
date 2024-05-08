@@ -8,12 +8,12 @@ import sys
 import transform
 import helper
 
-
 # Load the trained model
-model = YOLO('runs/detect/yolov8n_corners/weights/best.pt') 
+model_corners = YOLO('runs/detect/yolov8n_corners/weights/best.pt')
+model_pieces = YOLO('runs/detect/yolov8n_pieces7/weights/best.pt')
 
 # Open the pre-shot video file
-video_path = 'VID20240507101110.mp4'  # Update with live feed
+video_path = 'test_videos/VID1.mp4'  # Update with live feed
 cap = cv2.VideoCapture(video_path)
 
 # video_feed_url = helper.get_ip('home')
@@ -36,7 +36,7 @@ while cap.isOpened():
         # Make predictions on the current frame
         points = []
 
-        predictions = model.predict(resized_frame, show=True, device='cuda:0')
+        predictions = model_corners.predict(resized_frame, device='cuda:0')
         boxes = predictions[0].boxes.xyxy.tolist()
 
         for box in boxes:
@@ -50,6 +50,8 @@ while cap.isOpened():
             height, width = topdown_img.shape[:2]
    
             transformed_img = helper.adjust_chessboard_orientation(topdown_img, height, width)
+            pieces_predictions = model_pieces.predict(transformed_img, show=True, device='cuda:0')
+            pieces_boxes = pieces_predictions[0].boxes.xyxy.tolist()
 
             section_height = transformed_img.shape[0] // 8
             section_width = transformed_img.shape[1] // 8
@@ -86,4 +88,3 @@ while cap.isOpened():
 
 cap.release()
 cv2.destroyAllWindows()
-
