@@ -1,26 +1,41 @@
 import numpy as np
 import cv2
 
-def is_square(points):
-    # Check if the points form a square
-    if len(points) != 4:
-        return False
+def is_square(points):  
+    # order points on x values
+    points = sorted(points, key=lambda x: x[0])
 
-    # Calculate the distance between the points
-    d1 = np.sqrt((points[0][0] - points[1][0])**2 + (points[0][1] - points[1][1])**2)
-    d2 = np.sqrt((points[1][0] - points[2][0])**2 + (points[1][1] - points[2][1])**2)
-    d3 = np.sqrt((points[2][0] - points[3][0])**2 + (points[2][1] - points[3][1])**2)
-    d4 = np.sqrt((points[3][0] - points[0][0])**2 + (points[3][1] - points[0][1])**2)
-
-    distances = [d1, d2, d3, d4]
-    max_distance = max(distances)
+    good_points = []
+    for i in range(len(points)):
+        if i + 1 > len(points) - 1:
+            j = 0
+        else:
+            j = i + 1
+        
+        # Calculate the distance between two points
+        distance = np.sqrt((points[i][0] - points[j][0])**2 + (points[i][1] - points[j][1])**2)
+        if distance > 100:
+            good_points.append(points[i])
+ 
     
-    for distance in distances:
-        if distance < max_distance/3:
-            return False
-    
-    return True
+    if len(good_points) == 4:
+        #calculate the distance to all the other good_points
+        distances = []
+        for i in range(len(good_points)):
+            for j in range(len(good_points)):
+                if i != j:
+                    distance = np.sqrt((good_points[i][0] - good_points[j][0])**2 + (good_points[i][1] - good_points[j][1])**2)
+                    distances.append(distance)
+        
+        if min(distances) < 50:
+            is_square = False
+        else:
+            is_square = True
+    else:
+        is_square = False
 
+    return is_square, good_points
+        
 def rotate_image(image, angle):
     # Rotate the image by the given angle (90, 180, 270 degrees)
     if angle == 90:
@@ -37,7 +52,7 @@ def get_color_at_point(image, x, y):
     # Get the BGR color of the image at a specific point
     return image[y, x]
 
-def adjust_chessboard_orientation(transformed_img, height, width, current_orientation):
+def adjust_chessboard_orientation(transformed_img, height, width):
     
     # Check the color at bottom-left and bottom-right corners
     bottom_left_color = get_color_at_point(transformed_img, 5, 5)
@@ -45,15 +60,9 @@ def adjust_chessboard_orientation(transformed_img, height, width, current_orient
     
     # Determine if the bottom-left is darker than the bottom-right
     if np.mean(bottom_left_color) < np.mean(bottom_right_color):
-        # If bottom-left is lighter, rotate 90 degrees
-        if current_orientation == 90:
-            rotation = 270
-        else: 
-            rotation = 90
-        
-        transformed_img = rotate_image(transformed_img, rotation)
+         transformed_img = rotate_image(transformed_img, 90)
 
-    return transformed_img, rotation
+    return transformed_img
 
 def is_in_box(piece_center: tuple, grid_points: list):
     """
