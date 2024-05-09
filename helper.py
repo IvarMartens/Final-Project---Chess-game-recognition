@@ -96,3 +96,15 @@ def get_ip(location):
     if location == 'uni':
         return 'http://'
     
+def transform_point(point, M):
+    # Convert the point to a numpy array and reshape for cv2.perspectiveTransform
+    point_array = np.array([[point]], dtype=np.float32)
+    
+    # Apply the perspective transformation matrix using cv2.perspectiveTransform
+    transformed_point_array = cv2.perspectiveTransform(point_array, M)
+    
+    # Extract the transformed coordinates from the result
+    new_x, new_y = transformed_point_array[0][0]
+    
+    # Return the transformed coordinates as a tuple of integers
+    return int(round(new_x)), int(round(new_y))

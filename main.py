@@ -22,6 +22,11 @@ cap = cv2.VideoCapture(video_path)
 frame_counter = 0
 frames_to_skip = 2
 
+circle_radius = 5
+circle_color_red = (0, 0, 255)  # Red color
+circle_color_blue = (255, 0, 0)
+thickness = -1  # Filled circle
+
 while cap.isOpened():
     ret, frame = cap.read()
     #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -30,13 +35,15 @@ while cap.isOpened():
         break
 
     resized_frame = cv2.resize(frame, (640, 480), interpolation = cv2.INTER_AREA)
+    height, width = resized_frame.shape[:2]
+    middle = (width // 2, height // 2)
 
     # Process only every nth frame
     if frame_counter % frames_to_skip == 0:
         # Make predictions on the current frame
         points = []
 
-        predictions = model_corners.predict(resized_frame, show=True, device='cuda:0')
+        predictions = model_corners.predict(resized_frame, show=False, device='cuda:0')
         boxes = predictions[0].boxes.xyxy.tolist()
         classes = predictions[0].boxes.cls.tolist()
         names = predictions[0].names
@@ -48,7 +55,8 @@ while cap.isOpened():
         is_square, good_points = helper.is_square(points)
         if is_square:
             np_points = np.array(good_points, dtype=np.float32)
-            topdown_img = transform.four_point_transform(resized_frame, np_points)
+            topdown_img, M = transform.four_point_transform(resized_frame, np_points)
+
             height, width = topdown_img.shape[:2]
    
             transformed_img = helper.adjust_chessboard_orientation(topdown_img, height, width)
@@ -68,13 +76,8 @@ while cap.isOpened():
 
                     if y not in grid_points[1]:
                         grid_points[1].append(y)
-                    
-                    # Draw circles on each intersection point
-                    circle_radius = 5
-                    circle_color = (0, 0, 255)  # Red color
-                    thickness = -1  # Filled circle
 
-                    cv2.circle(transformed_img, (x, y), circle_radius, circle_color, thickness)
+                    cv2.circle(transformed_img, (x, y), circle_radius, circle_color_red, thickness)
                 
                 grid_points[0].append(x)
 
