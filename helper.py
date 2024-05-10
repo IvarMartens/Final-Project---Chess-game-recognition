@@ -70,16 +70,23 @@ def is_in_box(piece_center: tuple, grid_points: list):
     @args piece_center: the center of the base of the boinding box of a piece and the grid points (x,y)
     @args grid_points: the intersection points of the chessboard grid in current frame
 
-    returns: the index of the grid point that the piece is in
+    returns: Location of the piece on the chessboard
     """
     x = None
     y = None
+    x_names = ['a','b','c','d','e','f','g','h']
+    y_names = ['8', '7', '6', '5', '4', '3', '2', '1']
 
-    for i in range (7):
+    for i in range (len(x_names)):
         if i == 1:
             if piece_center[0] < grid_points[0][i]:
                 x = i
             if piece_center[1] < grid_points[1][i]:
+                y = i
+        elif i == 7:
+            if piece_center[0] > grid_points[0][i-1]:
+                x = i
+            if piece_center[1] > grid_points[1][i-1]:
                 y = i
         else:
             if piece_center[0] < grid_points[0][i] and piece_center[0] > grid_points[0][i-1]:
@@ -88,7 +95,8 @@ def is_in_box(piece_center: tuple, grid_points: list):
                 y = i
 
         if x != None and y != None:
-            return (x,y)
+            location_string = "{}{}".format(x_names[x], y_names[y])
+            return location_string
 
 def get_ip(location):
     if location == 'home':
@@ -108,3 +116,14 @@ def transform_point(point, M):
     
     # Return the transformed coordinates as a tuple of integers
     return int(round(new_x)), int(round(new_y))
+
+def transform_boxes(piece_boxes, M):
+    transformed_boxes_points = []
+    for box in piece_boxes:
+        # Calculate the center of the bottom of the bounding box
+        center_bottom = ((box[0] + box[2]) // 2, box[3])
+
+        center_bottom_transformed = transform_point(center_bottom, M)
+        transformed_boxes_points.append(center_bottom_transformed)
+
+    return transformed_boxes_points

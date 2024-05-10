@@ -13,7 +13,6 @@ def main():
         epochs=100,
         batch=16,
         device='cuda:0',
-        load = "runs/detect/yolov8s_pieces/weights/best.pt",
         name='yolov8s_pieces')
     
 if __name__ == '__main__':

@@ -29,12 +29,12 @@ thickness = -1  # Filled circle
 
 while cap.isOpened():
     ret, frame = cap.read()
-    #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     if not ret:
         print("Failed to grab frame")
         break
 
     resized_frame = cv2.resize(frame, (640, 480), interpolation = cv2.INTER_AREA)
+
     height, width = resized_frame.shape[:2]
     middle = (width // 2, height // 2)
 
@@ -45,11 +45,6 @@ while cap.isOpened():
 
         predictions = model_corners.predict(resized_frame, show=False, device='cuda:0')
         boxes = predictions[0].boxes.xyxy.tolist()
-        classes = predictions[0].boxes.cls.tolist()
-        names = predictions[0].names
-
-        pieces_predictions = model_pieces.predict(resized_frame, show=True, device='cuda:0')
-        pieces_boxes = pieces_predictions[0].boxes.xyxy.tolist()
 
         for box in boxes:
             center = ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2)
@@ -75,16 +70,41 @@ while cap.isOpened():
                     x = col * section_width
                     y = row * section_height
 
-                    if y not in grid_points[1]:
-                        grid_points[1].append(y)
+                    if x not in grid_points[0]:
+                        grid_points[0].append(x)
+                grid_points[1].append(y)
 
-                    cv2.circle(transformed_img, (x, y), circle_radius, circle_color_red, thickness)
-                
-                grid_points[0].append(x)
+            for x in grid_points[0]:
+                cv2.line(transformed_img, (x, 0), (x, height), (255, 0, 0), 2)
+            for y in grid_points[1]:
+                cv2.line(transformed_img, (0, y), (width, y), (0, 255, 0), 2)
+
+
+            pieces_predictions = model_pieces.predict(resized_frame, show=True, device='cuda:0')
+            pieces_boxes = pieces_predictions[0].boxes.xyxy.tolist()
+            pieces_classes = pieces_predictions[0].boxes.cls.tolist()
+            pieces_names = pieces_predictions[0].names
+
+            transformed_boxes_points = helper.transform_boxes(pieces_boxes, M)
+
+            for point in transformed_boxes_points:
+                cv2.circle(transformed_img, (int(point[0]), int(point[1])), circle_radius, circle_color_red, thickness)
 
             cv2.imshow('Transformed Image', transformed_img)
+            print(transformed_boxes_points)
+            print(grid_points)
+
+            for i in range(len(transformed_boxes_points)):
+                box_point = transformed_boxes_points[i]
+                location = helper.is_in_box(box_point, grid_points)
+                name = pieces_names[pieces_classes[i]]
+                print("{} is in {}".format(name, location))
+            
+            cv2.waitKey(0)
+
 
     frame_counter += 1
+    
     
     # Break the loop with the 'q' key
     if cv2.waitKey(1) & 0xFF == ord('q'):
