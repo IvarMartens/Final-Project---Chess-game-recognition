@@ -1,6 +1,8 @@
 .venv/
 runs/
 yolov8n.pt
+yolov8s.pt
+yolov9c.pt
 Corner_Dataset/
 VID20240507101110.mp4
 dump/
