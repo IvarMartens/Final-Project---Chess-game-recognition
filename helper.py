@@ -127,3 +127,60 @@ def transform_boxes(piece_boxes, M):
         transformed_boxes_points.append(center_bottom_transformed)
 
     return transformed_boxes_points
+
+def create_fen(locations, names):
+    # Initialize an empty 8x8 board
+    board = [['8' for _ in range(8)] for _ in range(8)]
+
+    # Define a mapping from piece names to FEN notation characters
+    piece_mapping = {
+        '-White-King-': 'K',
+        '-White-Queen-': 'Q',
+        '-White-Rook-': 'R',
+        '-White-Bishop-': 'B',
+        '-White-Knight-': 'N',
+        '-White-Pawn-': 'P',
+        '-Black-King-': 'k',
+        '-Black-Queen-': 'q',
+        '-Black-Rook-': 'r',
+        '-Black-Bishop-': 'b',
+        '-Black-Knight-': 'n',
+        '-Black-Pawn-': 'p'
+    }
+
+    # Helper function to convert board index to FEN rank
+    def index_to_rank(index):
+        return 8 - index
+
+    # Helper function to convert file character to index
+    def file_to_index(file):
+        return ord(file) - ord('a')
+
+    # Place each piece on the board
+    for loc, name in zip(locations, names):
+        rank = index_to_rank(int(loc[1]) - 1) - 1
+        file = file_to_index(loc[0])
+        board[rank][file] = piece_mapping[name]
+
+    # Convert the board to a FEN string
+    fen_rows = []
+    for row in board:
+        fen_row = []
+        empty_count = 0
+        for cell in row:
+            if cell == '8':
+                empty_count += 1
+            else:
+                if empty_count > 0:
+                    fen_row.append(str(empty_count))
+                    empty_count = 0
+                fen_row.append(cell)
+        if empty_count > 0:
+            fen_row.append(str(empty_count))
+        fen_rows.append(''.join(fen_row))
+
+    fen_board = '/'.join(fen_rows)
+
+    # Construct the final FEN string (no castling rights, no en passant target, halfmove clock and fullmove number are placeholders)
+    fen_string = f"{fen_board} w - - 0 1"
+    return fen_string

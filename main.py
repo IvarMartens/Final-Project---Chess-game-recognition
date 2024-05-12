@@ -7,13 +7,14 @@ import sys
 
 import transform
 import helper
+import visualise_board
 
 # Load the trained model
 model_corners = YOLO('runs/detect/yolov8n_corners4/weights/best.pt')
 model_pieces = YOLO('runs/detect/yolov8s_pieces/weights/best.pt')
 
 # Open the pre-shot video file
-video_path = 'test_videos/VID1.mp4'  # Update with live feed
+video_path = 'test_videos/VID2.mp4'  # Update with live feed
 cap = cv2.VideoCapture(video_path)
 
 # video_feed_url = helper.get_ip('home')
@@ -84,6 +85,7 @@ while cap.isOpened():
             pieces_boxes = pieces_predictions[0].boxes.xyxy.tolist()
             pieces_classes = pieces_predictions[0].boxes.cls.tolist()
             pieces_names = pieces_predictions[0].names
+            pieces_confidences = pieces_predictions[0].boxes.conf.tolist()
 
             transformed_boxes_points = helper.transform_boxes(pieces_boxes, M)
 
@@ -91,17 +93,28 @@ while cap.isOpened():
                 cv2.circle(transformed_img, (int(point[0]), int(point[1])), circle_radius, circle_color_red, thickness)
 
             cv2.imshow('Transformed Image', transformed_img)
-            print(transformed_boxes_points)
-            print(grid_points)
 
+            locations = []
+            names = []
             for i in range(len(transformed_boxes_points)):
                 box_point = transformed_boxes_points[i]
                 location = helper.is_in_box(box_point, grid_points)
-                name = pieces_names[pieces_classes[i]]
-                print("{} is in {}".format(name, location))
+                if location not in locations:
+                    locations.append(location)
+                    names.append(pieces_names[pieces_classes[i]])
+                else:
+                    #find index of the location in the list
+                    index = locations.index(location)
+                    if pieces_confidences[i] > pieces_confidences[index]:
+                        locations[index] = location
+                        name = pieces_names[pieces_classes[i]]
+                        names[index] = name
+                    else:
+                        continue
             
-            cv2.waitKey(0)
-
+            fen = helper.create_fen(locations, names)
+            board = visualise_board.visualise_board(fen)
+            cv2.imshow('Board', board)
 
     frame_counter += 1
     
