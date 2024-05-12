@@ -1,14 +1,12 @@
+__pycache__/
 .venv/
+corner data/
+dump/
+Papers/
+Performance Images/
+piece data/
 runs/
+test_videos/
 yolov8n.pt
 yolov8s.pt
 yolov9c.pt
-Corner_Dataset/
-VID20240507101110.mp4
-dump/
-corner data/
-Papers/
-_pycache_/
-unlabeled piece data/
-piece data/
-test_videos/

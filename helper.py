@@ -59,12 +59,49 @@ def adjust_chessboard_orientation(transformed_img, height, width):
     bottom_right_color = get_color_at_point(transformed_img, width - 5, 5)
     
     # Determine if the bottom-left is darker than the bottom-right
+    turned = False
     if np.mean(bottom_left_color) < np.mean(bottom_right_color):
+         turned = True
          transformed_img = rotate_image(transformed_img, 90)
 
-    return transformed_img
+    return transformed_img, turned
 
-def is_in_box(piece_center: tuple, grid_points: list):
+def rotate_points(points, turned, height, width):
+    """
+    Rotates points on an image if the image has been turned 90 degrees.
+    
+    Parameters:
+    - points: List of tuples representing the (x, y) coordinates of the points.
+    - turned: Boolean indicating if the image has been turned 90 degrees.
+    - height: Height of the original image.
+    - width: Width of the original image.
+    
+    Returns:
+    - Transformed list of points.
+    """
+    if not turned:
+        # No rotation needed
+        return points
+    
+    # Rotation matrix for 90 degree clockwise
+    rotation_matrix = np.array([[0, 1], [-1, 0]])
+    
+    # Calculate new points
+    rotated_points = []
+    for point in points:
+        x, y = point
+        new_point = np.dot(rotation_matrix, np.array([x, y]))
+        new_x, new_y = new_point
+        
+        # Since the image is rotated 90 degrees clockwise,
+        # the new x becomes (original height - y) and new y becomes x
+        transformed_point = (height - y, x)
+        
+        rotated_points.append(transformed_point)
+    
+    return rotated_points
+
+def is_in_location(piece_center: tuple, grid_points: list):
     """
     
     @args piece_center: the center of the base of the boinding box of a piece and the grid points (x,y)
@@ -79,9 +116,9 @@ def is_in_box(piece_center: tuple, grid_points: list):
 
     for i in range (len(x_names)):
         if i == 1:
-            if piece_center[0] < grid_points[0][i]:
+            if piece_center[0] <= grid_points[0][i]:
                 x = i
-            if piece_center[1] < grid_points[1][i]:
+            if piece_center[1] <= grid_points[1][i]:
                 y = i
         elif i == 7:
             if piece_center[0] > grid_points[0][i-1]:
@@ -89,9 +126,9 @@ def is_in_box(piece_center: tuple, grid_points: list):
             if piece_center[1] > grid_points[1][i-1]:
                 y = i
         else:
-            if piece_center[0] < grid_points[0][i] and piece_center[0] > grid_points[0][i-1]:
+            if piece_center[0] <= grid_points[0][i] and piece_center[0] > grid_points[0][i-1]:
                 x = i
-            if piece_center[1] < grid_points[1][i] and piece_center[1] > grid_points[1][i-1]:
+            if piece_center[1] <= grid_points[1][i] and piece_center[1] > grid_points[1][i-1]:
                 y = i
 
         if x != None and y != None:
@@ -121,7 +158,7 @@ def transform_boxes(piece_boxes, M):
     transformed_boxes_points = []
     for box in piece_boxes:
         # Calculate the center of the bottom of the bounding box
-        center_bottom = ((box[0] + box[2]) // 2, box[3])
+        center_bottom = ((box[0] + box[2]) // 2, box[3]-5)
 
         center_bottom_transformed = transform_point(center_bottom, M)
         transformed_boxes_points.append(center_bottom_transformed)
@@ -183,4 +220,5 @@ def create_fen(locations, names):
 
     # Construct the final FEN string (no castling rights, no en passant target, halfmove clock and fullmove number are placeholders)
     fen_string = f"{fen_board} w - - 0 1"
+
     return fen_string

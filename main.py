@@ -36,30 +36,34 @@ while cap.isOpened():
 
     resized_frame = cv2.resize(frame, (640, 480), interpolation = cv2.INTER_AREA)
 
-    height, width = resized_frame.shape[:2]
-    middle = (width // 2, height // 2)
-
     # Process only every nth frame
     if frame_counter % frames_to_skip == 0:
-        # Make predictions on the current frame
-        points = []
 
-        predictions = model_corners.predict(resized_frame, show=False, device='cuda:0')
+
+        #predict corners
+        predictions = model_corners.predict(resized_frame, show=True, device='cuda:0', verbose=False)
+
+        # Get location of the corners
         boxes = predictions[0].boxes.xyxy.tolist()
-
+        points = []
         for box in boxes:
             center = ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2)
             points.append(center)
         
+        #check if points form a square, and which points form that square (sometimes the model detects more than 4 points)
         is_square, good_points = helper.is_square(points)
         if is_square:
             np_points = np.array(good_points, dtype=np.float32)
+
+            #Transform the image to a topdown view
             topdown_img, M = transform.four_point_transform(resized_frame, np_points)
-
             height, width = topdown_img.shape[:2]
-   
-            transformed_img = helper.adjust_chessboard_orientation(topdown_img, height, width)
 
+            # turn chessboard if were not looking from white side (Bottom left corner is not darker than the bottom right corner)
+            transformed_img, turned = helper.adjust_chessboard_orientation(topdown_img, height, width)
+            height_transformed, width_transformed = transformed_img.shape[:2]
+
+    
             section_height = transformed_img.shape[0] // 8
             section_width = transformed_img.shape[1] // 8
 
@@ -75,30 +79,34 @@ while cap.isOpened():
                         grid_points[0].append(x)
                 grid_points[1].append(y)
 
+            # Draw the grid on the transformed image
             for x in grid_points[0]:
-                cv2.line(transformed_img, (x, 0), (x, height), (255, 0, 0), 2)
+                cv2.line(transformed_img, (x, 0), (x, height_transformed), (255, 0, 0), 2)
             for y in grid_points[1]:
-                cv2.line(transformed_img, (0, y), (width, y), (0, 255, 0), 2)
+                cv2.line(transformed_img, (0, y), (width_transformed, y), (0, 255, 0), 2)
 
-
-            pieces_predictions = model_pieces.predict(resized_frame, show=True, device='cuda:0')
+            # Predict the pieces on normal image
+            pieces_predictions = model_pieces.predict(resized_frame, show=False, device='cuda:0', verbose=False)
             pieces_boxes = pieces_predictions[0].boxes.xyxy.tolist()
             pieces_classes = pieces_predictions[0].boxes.cls.tolist()
             pieces_names = pieces_predictions[0].names
             pieces_confidences = pieces_predictions[0].boxes.conf.tolist()
 
+            # Fit the predictions to the transformed image
             transformed_boxes_points = helper.transform_boxes(pieces_boxes, M)
+            correct_points = helper.rotate_points(transformed_boxes_points, turned, height, width)
 
-            for point in transformed_boxes_points:
+            for point in correct_points:
                 cv2.circle(transformed_img, (int(point[0]), int(point[1])), circle_radius, circle_color_red, thickness)
 
             cv2.imshow('Transformed Image', transformed_img)
 
+            # get positioning within grid
             locations = []
             names = []
-            for i in range(len(transformed_boxes_points)):
-                box_point = transformed_boxes_points[i]
-                location = helper.is_in_box(box_point, grid_points)
+            for i in range(len(correct_points)):
+                box_point = correct_points[i]
+                location = helper.is_in_location(box_point, grid_points)
                 if location not in locations:
                     locations.append(location)
                     names.append(pieces_names[pieces_classes[i]])
@@ -112,10 +120,10 @@ while cap.isOpened():
                     else:
                         continue
             
+            # Visualise the board using a FEN string
             fen = helper.create_fen(locations, names)
             board = visualise_board.visualise_board(fen)
             cv2.imshow('Board', board)
-
     frame_counter += 1
     
     
