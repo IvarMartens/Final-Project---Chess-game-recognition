@@ -8,3 +8,4 @@ runs/
 test_videos/
 yolov8n.pt
 yolov8s.pt
+__pycache__/

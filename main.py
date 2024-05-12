@@ -14,19 +14,20 @@ model_corners = YOLO('runs/detect/yolov8n_corners4/weights/best.pt')
 model_pieces = YOLO('runs/detect/yolov8s_pieces/weights/best.pt')
 
 # Open the pre-shot video file
-video_path = 'test_videos/VID2.mp4'  # Update with live feed
+video_path = 'test_videos/VID2.mp4'  
 cap = cv2.VideoCapture(video_path)
 
 # video_feed_url = helper.get_ip('home')
 # cap = cv2.VideoCapture(video_feed_url)
 
 frame_counter = 0
-frames_to_skip = 2
+frames_to_skip = 10
 
 circle_radius = 5
 circle_color_red = (0, 0, 255)  # Red color
 circle_color_blue = (255, 0, 0)
 thickness = -1  # Filled circle
+
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -39,9 +40,8 @@ while cap.isOpened():
     # Process only every nth frame
     if frame_counter % frames_to_skip == 0:
 
-
         #predict corners
-        predictions = model_corners.predict(resized_frame, show=True, device='cuda:0', verbose=False)
+        predictions = model_corners.predict(resized_frame, show=False, verbose=False)
 
         # Get location of the corners
         boxes = predictions[0].boxes.xyxy.tolist()
@@ -86,7 +86,8 @@ while cap.isOpened():
                 cv2.line(transformed_img, (0, y), (width_transformed, y), (0, 255, 0), 2)
 
             # Predict the pieces on normal image
-            pieces_predictions = model_pieces.predict(resized_frame, show=False, device='cuda:0', verbose=False)
+            pieces_predictions = model_pieces.predict(resized_frame, show=True, verbose=False)
+
             pieces_boxes = pieces_predictions[0].boxes.xyxy.tolist()
             pieces_classes = pieces_predictions[0].boxes.cls.tolist()
             pieces_names = pieces_predictions[0].names
@@ -106,7 +107,7 @@ while cap.isOpened():
             names = []
             for i in range(len(correct_points)):
                 box_point = correct_points[i]
-                location = helper.is_in_location(box_point, grid_points)
+                location = helper.is_in_location(box_point, grid_points, height_transformed, width_transformed)      
                 if location not in locations:
                     locations.append(location)
                     names.append(pieces_names[pieces_classes[i]])
@@ -120,10 +121,18 @@ while cap.isOpened():
                     else:
                         continue
             
+            none_location_index = [i for i, x in enumerate(locations) if x == None]
+            for i in none_location_index:
+                locations.pop(i)
+                names.pop(i)
+
             # Visualise the board using a FEN string
             fen = helper.create_fen(locations, names)
             board = visualise_board.visualise_board(fen)
             cv2.imshow('Board', board)
+            
+            cv2.waitKey(0)
+            
     frame_counter += 1
     
     

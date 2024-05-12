@@ -10,7 +10,7 @@ class TestHelper(unittest.TestCase):
 
     def test_is_in_box(self):
         for i, piece in enumerate(self.pieces):
-            location = helper.is_in_box(piece, self.grid_points)
+            location = helper.is_in_location(piece, self.grid_points, 344, 352)
             self.assertEqual(location, self.expected_results[i])
 
 if __name__ == '__main__':

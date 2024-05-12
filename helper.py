@@ -101,7 +101,7 @@ def rotate_points(points, turned, height, width):
     
     return rotated_points
 
-def is_in_location(piece_center: tuple, grid_points: list):
+def is_in_location(piece_center: tuple, grid_points: list, height, width):
     """
     
     @args piece_center: the center of the base of the boinding box of a piece and the grid points (x,y)
@@ -116,14 +116,14 @@ def is_in_location(piece_center: tuple, grid_points: list):
 
     for i in range (len(x_names)):
         if i == 1:
-            if piece_center[0] <= grid_points[0][i]:
+            if piece_center[0] <= grid_points[0][i] and piece_center[0] >= 0:
                 x = i
-            if piece_center[1] <= grid_points[1][i]:
+            if piece_center[1] <= grid_points[1][i] and piece_center[1] >= 0:
                 y = i
         elif i == 7:
-            if piece_center[0] > grid_points[0][i-1]:
+            if piece_center[0] > grid_points[0][i-1] and piece_center[0] <= width:
                 x = i
-            if piece_center[1] > grid_points[1][i-1]:
+            if piece_center[1] > grid_points[1][i-1] and piece_center[1] <= height:
                 y = i
         else:
             if piece_center[0] <= grid_points[0][i] and piece_center[0] > grid_points[0][i-1]:
@@ -137,7 +137,7 @@ def is_in_location(piece_center: tuple, grid_points: list):
 
 def get_ip(location):
     if location == 'home':
-        return 'http://192.168.55.110:8080/video'
+        return f"http://192.168.55.119:8080/video"
     if location == 'uni':
         return 'http://'
     
