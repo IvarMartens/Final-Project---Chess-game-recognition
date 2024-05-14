@@ -70,10 +70,19 @@ The annotated data set for the chess pieces can be accesed via the following lin
 ## Run Instructions
 1. Set up a chess board with 1 King, 1 Queen, 1 Rook and 2 pawns for both black and white. 
 2. Once video feed is initiated run `main.py`. 
-3. In the standard configuration, as seen in commit named "Updated File Structure - Demo Version Full", the program should show the topdown view with grid and red dots indicating a predicted piece once we have detected four corners of a chessboard (middle window). It shows 2 chessboards ones a valid initial state is found. The window called "Detected Board" shows the predictions of the current frame (left window). This window will show some flikkering as predictions are not fully accurate all of the time as can be seen in the image below. The window called "Board" will shows the current accepted board with highlights for the last move (right window). 
+3. Start filming from 'a' or '1' side of the chess board
+4. In the standard configuration, as seen in commit named "Updated File Structure - Demo Version Full", the program should show the topdown view with grid and red dots indicating a predicted piece once we have detected four corners of a chessboard (middle window). It shows 2 chessboards ones a valid initial state is found. The window called "Detected Board" shows the predictions of the current frame (left window). This window will show some flikkering as predictions are not fully accurate all of the time as can be seen in the image below. The window called "Board" will shows the current accepted board with highlights for the last move (right window). 
 
 ![alt text](image.png)
 
 ## Inspiration technical approach
 - James Gallagher. (Mar 10, 2023). Represent Chess Boards Digitally with Computer Vision. Roboflow Blog: https://blog.roboflow.com/chess-boards/
 
+## Future Work
+This section describes possible improvements that can be made to the project:
+
+1. Ability to track a chess game from the start
+2. Enhance dataset to be more robust (more chess boards, more lighting situations, more angels)
+3. Track orientation of chess board regardless of camera positioning (allow for filming from 'h' and '8' side of the chess board)
+4. Add move suggestion / integration with some chess engine
+5. Improve gitHub page for ease of use
