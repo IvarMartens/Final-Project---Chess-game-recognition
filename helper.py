@@ -138,9 +138,9 @@ def is_in_location(piece_center: tuple, grid_points: list, height, width):
 
 def get_ip(location):
     if location == 'home':
-        return f"http://192.168.55.110:8080/video"
+        return f"http://:8080/video" #TODO: add own adress
     if location == 'uni':
-        return 'http://145.118.227.168:8080/video'
+        return 'http://:8080/video'
     
 def transform_point(point, M):
     # Convert the point to a numpy array and reshape for cv2.perspectiveTransform

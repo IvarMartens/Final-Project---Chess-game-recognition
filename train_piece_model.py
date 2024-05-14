@@ -8,7 +8,7 @@ def main():
 
     # Training.
     results = model.train(
-        data='C:/Users/ivar/Documents/Documents/University/Leiden University/Master/Robotics/Final Project - Chess game recognition/piece data/data.yaml',
+        data='Final Project - Chess game recognition/piece data/data.yaml', # Change to correct link
         imgsz=640,
         epochs=80,
         batch=8,

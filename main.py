@@ -10,8 +10,8 @@ import helper
 import visualise_board
 
 # Load the trained model
-model_corners = YOLO('runs/detect/yolov8n_corners/weights/best.pt')
-model_pieces = YOLO('runs/detect/yolov8s_pieces/weights/best.pt')
+model_corners = YOLO('corner_model.pt')
+model_pieces = YOLO('piece_model.pt')
 
 # Open the pre-shot video file
 video_path = 'test_videos/VIDM4.mp4'  
