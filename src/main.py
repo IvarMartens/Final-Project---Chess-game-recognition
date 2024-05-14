@@ -9,13 +9,15 @@ import transform
 import helper
 import visualise_board
 
+
 # Load the trained model
-model_corners = YOLO('corner_model.pt')
-model_pieces = YOLO('piece_model.pt')
+model_corners = YOLO('Models/corner_model.pt')
+model_pieces = YOLO('Models/piece_model.pt')
 
 # Open the pre-shot video file
 video_path = 'test_videos/VIDM4.mp4'  
 cap = cv2.VideoCapture(video_path)
+
 
 #video_feed_url = helper.get_ip('uni')
 #cap = cv2.VideoCapture(video_feed_url)

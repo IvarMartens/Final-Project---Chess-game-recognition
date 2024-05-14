@@ -4,7 +4,7 @@ import torchvision
 
 def main():
     # Load the model.
-    model = YOLO('yolov8s.pt')
+    model = YOLO('../Models/yolov8s.pt')
 
     # Training.
     results = model.train(
