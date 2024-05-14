@@ -21,7 +21,7 @@ The program takes the follwing steps to convert the video frame to the chess boa
 
 
 ## Requirements 
-All the requirements for this project are listed in the requirements.txt file. These packages can be intalled using `pip install requirements.txt`.
+All the requirements for this project are listed in the requirements.txt file. These packages can be intalled using `pip install -r requirements.txt`.
 
 ## Live Camera feed
 In order to use the camera feed from your phone you have to follow the following steps:
