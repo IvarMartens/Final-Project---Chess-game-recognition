@@ -10,15 +10,15 @@ import helper
 import visualise_board
 
 # Load the trained model
-model_corners = YOLO('runs/detect/yolov8n_corners4/weights/best.pt')
+model_corners = YOLO('runs/detect/yolov8n_corners/weights/best.pt')
 model_pieces = YOLO('runs/detect/yolov8s_pieces/weights/best.pt')
 
 # Open the pre-shot video file
-video_path = 'test_videos/VID2.mp4'  
+video_path = 'test_videos/VIDM4.mp4'  
 cap = cv2.VideoCapture(video_path)
 
-# video_feed_url = helper.get_ip('home')
-# cap = cv2.VideoCapture(video_feed_url)
+#video_feed_url = helper.get_ip('uni')
+#cap = cv2.VideoCapture(video_feed_url)
 
 frame_counter = 0
 frames_to_skip = 10
@@ -28,12 +28,19 @@ circle_color_red = (0, 0, 255)  # Red color
 circle_color_blue = (255, 0, 0)
 thickness = -1  # Filled circle
 
+old_fen = ''
+turn = 'w'
+last_move = None
+
+#out = cv2.VideoWriter("test_videos\VIDM4.mp4", -1, 20.0, (640,480))
 
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         print("Failed to grab frame")
         break
+
+    #out.write(frame)
 
     resized_frame = cv2.resize(frame, (640, 480), interpolation = cv2.INTER_AREA)
 
@@ -86,7 +93,7 @@ while cap.isOpened():
                 cv2.line(transformed_img, (0, y), (width_transformed, y), (0, 255, 0), 2)
 
             # Predict the pieces on normal image
-            pieces_predictions = model_pieces.predict(resized_frame, show=True, verbose=False)
+            pieces_predictions = model_pieces.predict(resized_frame, show=False, verbose=False)
 
             pieces_boxes = pieces_predictions[0].boxes.xyxy.tolist()
             pieces_classes = pieces_predictions[0].boxes.cls.tolist()
@@ -121,17 +128,34 @@ while cap.isOpened():
                     else:
                         continue
             
+            # remove None values
             none_location_index = [i for i, x in enumerate(locations) if x == None]
             for i in none_location_index:
                 locations.pop(i)
                 names.pop(i)
 
-            # Visualise the board using a FEN string
-            fen = helper.create_fen(locations, names)
-            board = visualise_board.visualise_board(fen)
-            cv2.imshow('Board', board)
-            
-            cv2.waitKey(0)
+            # Convert locations to FEN
+            fen = helper.create_fen(locations, names, turn)
+
+            if old_fen != '':
+                board = visualise_board.visualise_board(fen, None)
+                cv2.imshow('Detected Board', board)
+
+            legal, move = helper.is_legal_move(old_fen, fen)
+            # check if move is legal
+            if legal:
+                last_move = move
+                old_fen = fen
+                if turn == 'w':
+                    turn = 'b'
+                else:
+                    turn = 'w'
+
+            if old_fen != '':
+                board = visualise_board.visualise_board(old_fen, last_move)
+                cv2.imshow('Board', board)
+
+            #cv2.waitKey(0)
             
     frame_counter += 1
     
@@ -141,4 +165,5 @@ while cap.isOpened():
         break
 
 cap.release()
+#out.release()
 cv2.destroyAllWindows()

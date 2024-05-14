@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import chess
 
 def is_square(points):  
     # order points on x values
@@ -137,9 +138,9 @@ def is_in_location(piece_center: tuple, grid_points: list, height, width):
 
 def get_ip(location):
     if location == 'home':
-        return f"http://192.168.55.119:8080/video"
+        return f"http://192.168.55.110:8080/video"
     if location == 'uni':
-        return 'http://'
+        return 'http://145.118.227.168:8080/video'
     
 def transform_point(point, M):
     # Convert the point to a numpy array and reshape for cv2.perspectiveTransform
@@ -165,7 +166,7 @@ def transform_boxes(piece_boxes, M):
 
     return transformed_boxes_points
 
-def create_fen(locations, names):
+def create_fen(locations, names, turn):
     # Initialize an empty 8x8 board
     board = [['8' for _ in range(8)] for _ in range(8)]
 
@@ -219,6 +220,46 @@ def create_fen(locations, names):
     fen_board = '/'.join(fen_rows)
 
     # Construct the final FEN string (no castling rights, no en passant target, halfmove clock and fullmove number are placeholders)
-    fen_string = f"{fen_board} w - - 0 1"
+    fen_string = f"{fen_board} {turn} - - 0 1"
 
     return fen_string
+
+def check_first_state(fen):
+       # Split the FEN string by spaces to isolate the piece placement part
+    pieces = fen.split()[0]
+    
+    # Initialize counts for each required piece for white and black
+    white_counts = {'P': 0, 'Q': 0, 'K': 0, 'R': 0}
+    black_counts = {'p': 0, 'q': 0, 'k': 0, 'r': 0}
+    
+    # Count the pieces
+    for char in pieces:
+        if char in white_counts:
+            white_counts[char] += 1
+        elif char in black_counts:
+            black_counts[char] += 1
+    
+    # Check if the counts match the requirements
+    if (white_counts['P'] == 2 and white_counts['Q'] == 1 and 
+        white_counts['K'] == 1 and white_counts['R'] == 1 and
+        black_counts['p'] == 2 and black_counts['q'] == 1 and 
+        black_counts['k'] == 1 and black_counts['r'] == 1):
+        return True
+    else:
+        return False
+    
+def is_legal_move(old_fen, new_fen):
+    if old_fen == '':
+        return check_first_state(new_fen), None
+    elif old_fen == new_fen:
+        return True, None
+    else:
+        old_board = chess.Board(old_fen)
+        new_board = chess.Board(new_fen)
+        for move in old_board.legal_moves:
+            old_board.push(move)
+            if old_board.fen().split()[0]  == new_board.fen().split()[0] :  # Compare piece placement only
+                return True, move
+            old_board.pop()
+
+        return False, None
