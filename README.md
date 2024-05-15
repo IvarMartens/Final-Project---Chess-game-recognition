@@ -54,14 +54,14 @@ Code will performe well on test_videos/VID1.mp4, test_videos/VID2.mp4 and test_v
 The training set consists of images from multiple angles in multiple lighting conditions. The chessboard used is: https://www.bol.com/nl/nl/p/sincer-magnetisch-schaakset/9300000169267633/?s2a=&bltgh=gP9quxkqp-zszO3Jx3dGSg.2_35_36.37.FeatureOptionButton#productTitle. 
 
 ### Corner dataset
-The annotated data set for the corners can be accesed via the following link: https://universe.roboflow.com/uni-d5gj3/chess-corner-points
+The annotated data set for the corners can be accesed via the following link: https://universe.roboflow.com/uni-d5gj3/chess-corner-points or via the button below.
 
 <a href="https://universe.roboflow.com/uni-d5gj3/chess-corner-points">
     <img src="https://app.roboflow.com/images/download-dataset-badge.svg"></img>
 </a>
 
 ### Pieces dataset
-The annotated data set for the chess pieces can be accesed via the following link: https://universe.roboflow.com/uni-d5gj3/chess-piece-normal
+The annotated data set for the chess pieces can be accesed via the following link: https://universe.roboflow.com/uni-d5gj3/chess-piece-normal or via the button below.
 
 <a href="https://universe.roboflow.com/uni-d5gj3/chess-piece-normal">
     <img src="https://app.roboflow.com/images/download-dataset-badge.svg"></img>
@@ -72,6 +72,7 @@ The annotated data set for the chess pieces can be accesed via the following lin
 2. Once video feed is initiated run `main.py`. 
 3. Start filming from 'a' or '1' side of the chess board
 4. In the standard configuration, as seen in commit named "Updated File Structure - Demo Version Full", the program should show the topdown view with grid and red dots indicating a predicted piece once we have detected four corners of a chessboard (middle window). It shows 2 chessboards ones a valid initial state is found. The window called "Detected Board" shows the predictions of the current frame (left window). This window will show some flikkering as predictions are not fully accurate all of the time as can be seen in the image below. The window called "Board" will shows the current accepted board with highlights for the last move (right window). 
+5. If the "Board" window is not changing move the camera around to get a different perspective on the board. Make sure all 4 corners are clearly visable.
 
 ![alt text](image.png)
 
