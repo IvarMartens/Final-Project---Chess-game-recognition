@@ -72,7 +72,7 @@ The annotated data set for the chess pieces can be accesed via the following lin
 2. Once video feed is initiated run `main.py`. 
 3. Start filming from 'a' or '1' side of the chess board
 4. In the standard configuration, as seen in commit named "Updated File Structure - Demo Version Full", the program should show the topdown view with grid and red dots indicating a predicted piece once we have detected four corners of a chessboard (middle window). It shows 2 chessboards ones a valid initial state is found. The window called "Detected Board" shows the predictions of the current frame (left window). This window will show some flikkering as predictions are not fully accurate all of the time as can be seen in the image below. The window called "Board" will shows the current accepted board with highlights for the last move (right window). 
-5. If the "Board" window is not changing move the camera around to get a different perspective on the board. Make sure all 4 corners are clearly visable.
+5. If the "Board" window is not changing after moving a chess piece, check if the move is indeed a legal chess move or move the camera around to get a different perspective on the board. Make sure all 4 corners are clearly visable.
 
 ![alt text](image.png)
 
